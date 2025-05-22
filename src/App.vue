@@ -10,8 +10,7 @@
       <router-link to="/delete" class="nav-link" active-class="active">Delete</router-link> |
       <router-link to="/stats" class="nav-link" active-class="active">Statistics</router-link>
     </nav>
-    <router-view :persons="persons" @person-added="addPerson" @update-person="updatePerson" @delete-person="deletePerson"
-     />
+    <router-view :persons="persons" @person-added="addPerson" @update-person="updatePerson" @delete-person="deletePerson"/>
 
   </div>
 </template>

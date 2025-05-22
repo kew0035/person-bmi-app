@@ -44,7 +44,6 @@ label {
 
 input {
   width: 100%;
-  max-width: 100px;
   padding: 8px 10px;
   margin-bottom: 10px;
   border: 1px solid #ccc;
