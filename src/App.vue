@@ -3,31 +3,17 @@
     <h1>Person BMI Web App</h1>
 
     <nav class="main-nav">
-      <a href="#"
-         :class="{active: currentView === 'add'}"
-         @click.prevent="currentView = 'add'">Add Person</a> |
-      <a href="#"
-         :class="{active: currentView === 'list'}"
-         @click.prevent="currentView = 'list'">View All</a> |
-      <a href="#"
-         :class="{active: currentView === 'view'}"
-         @click.prevent="currentView = 'view'">View One</a> |
-      <a href="#"
-         :class="{active: currentView === 'edit'}"
-         @click.prevent="currentView = 'edit'">Edit</a> |
-      <a href="#"
-         :class="{active: currentView === 'delete'}"
-         @click.prevent="currentView = 'delete'">Delete</a> |
-      <a href="#"
-         :class="{active: currentView === 'stats'}"
-         @click.prevent="currentView = 'stats'">Statistics</a>
+      <router-link to="/add" class="nav-link" active-class="active">Add Person</router-link> |
+      <router-link to="/list" class="nav-link" active-class="active">View All</router-link> |
+      <router-link to="/view" class="nav-link" active-class="active">View One</router-link> |
+      <router-link to="/edit" class="nav-link" active-class="active">Edit</router-link> |
+      <router-link to="/delete" class="nav-link" active-class="active">Delete</router-link> |
+      <router-link to="/stats" class="nav-link" active-class="active">Statistics</router-link>
     </nav>
+    <router-view :persons="persons" @person-added="addPerson" @update-person="updatePerson" @delete-person="deletePerson"
+     />
 
-    <AddPerson v-if="currentView === 'add'" @person-added="addPerson" />
-    <ListPersons v-if="currentView === 'list'" :persons="persons" />
-    <ViewPerson v-if="currentView === 'view'" :persons="persons" />
-    <EditPerson v-if="currentView === 'edit'" :persons="persons" @update-person="updatePerson" />
-    <DeletePerson v-if="currentView === 'delete'" :persons="persons" @delete-person="deletePerson" />
+    
     <BmiStats v-if="currentView === 'stats'" :persons="persons" />
 
   </div>
@@ -35,25 +21,10 @@
 
 <script>
 import { ref } from 'vue';
-import AddPerson from './components/AddPerson.vue';
-import ListPersons from './components/ListPersons.vue';
-import ViewPerson from './components/ViewPerson.vue';
-import EditPerson from './components/EditPerson.vue';
-import DeletePerson from './components/DeletePerson.vue';
-import BmiStats from './components/BmiStats.vue';
+
 
 export default {
-  components: {
-    AddPerson,
-    ListPersons,
-    ViewPerson,
-    EditPerson,
-    DeletePerson,
-    BmiStats
-  },
   setup() {
-    const currentView = ref('add');
-
     const persons = ref([
       {
         name: 'Hassan',
@@ -88,7 +59,6 @@ export default {
     }
 
     return {
-      currentView,
       persons,
       addPerson,
       updatePerson,
