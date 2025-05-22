@@ -119,7 +119,7 @@ export default {
 
 .chart-canvas {
   margin-top: 20px;
-  max-width: 400px;
-  max-height: 300px;
+  max-width: 600px;
+  max-height: 400px;
 }
 </style>

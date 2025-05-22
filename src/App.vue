@@ -13,9 +13,6 @@
     <router-view :persons="persons" @person-added="addPerson" @update-person="updatePerson" @delete-person="deletePerson"
      />
 
-    
-    <BmiStats v-if="currentView === 'stats'" :persons="persons" />
-
   </div>
 </template>
 
