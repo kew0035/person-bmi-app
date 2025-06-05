@@ -26,8 +26,7 @@
 import { ref } from 'vue';
 
 export default {
-  emits: ['person-added'],
-  setup(props, { emit }) {
+  setup() {
     const name = ref('');
     const yob = ref(null);
     const weight = ref(null);
@@ -66,8 +65,6 @@ export default {
         return res.json();
       })
       .then(data => {
-        emit('person-added', personData);
-
         name.value = '';
         yob.value = null;
         weight.value = null;

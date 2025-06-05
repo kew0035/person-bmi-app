@@ -181,6 +181,48 @@ $app->put('/person/{id}', function (Request $request, Response $response, $args)
         return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
     }
 });
+// Optional
+$app->patch('/person/{id}', function (Request $request, Response $response, $args) {
+    try {
+        $id = (int)$args['id'];
+        $data = json_decode($request->getBody()->getContents(), true);
 
+        if (!$data) {
+            throw new Exception('No data provided');
+        }
+
+        $pdo = getPDO();
+
+        $fields = [];
+        $params = [];
+        foreach ($data as $key => $value) {
+            if (in_array($key, ['name', 'yob', 'weight', 'height', 'bmi', 'category', 'age', 'image'])) {
+                $fields[] = "$key = ?";
+                $params[] = $value;
+            }
+        }
+
+        if (empty($fields)) {
+            throw new Exception('No valid fields to update');
+        }
+
+        $params[] = $id;
+        $sql = "UPDATE person SET " . implode(", ", $fields) . " WHERE id = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+
+        if ($stmt->rowCount() > 0) {
+            $response->getBody()->write(json_encode(['message' => 'Partial update successful']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        } else {
+            $response->getBody()->write(json_encode(['error' => 'Person not found or no changes made']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
+        }
+
+    } catch (Exception $e) {
+        $response->getBody()->write(json_encode(['error' => $e->getMessage()]));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+    }
+});
 
 $app->run();

@@ -15,9 +15,24 @@
 </template>
 
 <script>
+import { ref, onMounted } from 'vue';
+
 export default {
-  props: {
-    persons: { type: Array, required: true }
+  setup() {
+    const persons = ref([]);
+
+    onMounted(() => {
+      fetch('http://localhost:8085/person')
+        .then(response => response.json())
+        .then(data => {
+          persons.value = data; 
+        })
+        .catch(error => {
+          console.error('Error fetching persons:', error);
+        });
+    });
+
+    return { persons };
   }
 };
 </script>

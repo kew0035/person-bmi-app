@@ -3,6 +3,7 @@
     <h2>View One Person</h2>
     <label>Enter Index (0-based):</label>
     <input type="number" v-model.number="viewIndex" :min="0" :max="persons.length - 1" placeholder="Enter index" />
+
     <div v-if="person" class="person-details-box">
       <img v-if="person.image" :src="person.image" alt="photo" class="person-photo-large" />
       <div class="person-info">
@@ -18,7 +19,7 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue';
+import { ref, watch } from 'vue';
 
 export default {
   props: {
@@ -26,10 +27,28 @@ export default {
   },
   setup(props) {
     const viewIndex = ref(null);
-    const person = computed(() => {
-      if (viewIndex.value === null) return null;
-      return props.persons[viewIndex.value] || null;
-    });
+    const person = ref(null);
+
+    // Watch for index changes
+    watch(viewIndex, async (newIndex) => {
+      if (newIndex !== null) {
+        const personId = props.persons[newIndex]?.id;
+        if (personId) {
+          try {
+            const res = await fetch(`http://localhost:8085/person/${personId}`);
+            const data = await res.json();
+            if (res.ok) {
+              person.value = data;
+            } else {
+              person.value = null;
+            }
+          } catch (error) {
+            console.error('Error fetching person:', error);
+          }
+        }
+      }
+    }, { immediate: true });
+
     return { viewIndex, person };
   }
 };

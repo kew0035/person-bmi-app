@@ -44,18 +44,35 @@ export default {
     const editHeight = ref(null);
     const editPhotoUrl = ref('');
 
-    function loadPersonToEdit() {
+    async function loadPersonToEdit() {
       if (editIndex.value === null || editIndex.value < 0 || editIndex.value >= props.persons.length) {
         personToEdit.value = null;
         return;
       }
-      const p = props.persons[editIndex.value];
-      personToEdit.value = p;
-      editName.value = p.name;
-      editYob.value = p.yob;
-      editWeight.value = p.weight;
-      editHeight.value = p.height;
-      editPhotoUrl.value = p.image;
+
+      const personId = props.persons[editIndex.value]?.id;
+      if (!personId) {
+        alert('Invalid person id');
+        return;
+      }
+
+      try {
+        const res = await fetch(`http://localhost:8085/person/${personId}`);
+        if (!res.ok) {
+          throw new Error('Failed to fetch person data');
+        }
+
+        const data = await res.json();
+        personToEdit.value = data;
+        editName.value = data.name;
+        editYob.value = data.yob;
+        editWeight.value = data.weight;
+        editHeight.value = data.height;
+        editPhotoUrl.value = data.image; 
+      } catch (error) {
+        console.error(error);
+        alert('Error loading person data');
+      }
     }
 
     async function updatePerson() {

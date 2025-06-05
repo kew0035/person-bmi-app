@@ -15,20 +15,18 @@
         </div>
       </div>
 
+      <!-- Pie Chart Canvas -->
       <canvas ref="chartCanvas" width="400" height="300" class="chart-canvas"></canvas>
     </div>
   </section>
 </template>
 
 <script>
-import { ref, watch, onMounted } from 'vue';
+import { ref, onMounted, nextTick } from 'vue';
 import Chart from 'chart.js/auto';
 
 export default {
-  props: {
-    persons: { type: Array, required: true }
-  },
-  setup(props) {
+  setup() {
     const totalPersons = ref(0);
     const bmiCategories = ref({
       underweight: { label: 'Underweight', count: 0, percent: 0, color: '#2196f3' },
@@ -40,11 +38,25 @@ export default {
     const chartCanvas = ref(null);
     let bmiChart = null;
 
-    function calculateStats() {
-      totalPersons.value = props.persons.length;
+    async function fetchPersons() {
+      try {
+        const response = await fetch('http://localhost:8085/person');  
+        if (!response.ok) {
+          throw new Error(`Failed to fetch persons: ${response.status}`);
+        }
+        const data = await response.json();
+        calculateStats(data); // update statistic
+        nextTick(() => renderChart());    // chart
+      } catch (error) {
+        console.error('Error fetching persons:', error);
+      }
+    }
+
+    function calculateStats(persons) {
+      totalPersons.value = persons.length;
       const counts = { underweight: 0, normal: 0, overweight: 0, obese: 0 };
 
-      props.persons.forEach(p => {
+      persons.forEach(p => {
         const bmi = parseFloat(p.bmi);
         if (bmi < 18.5) counts.underweight++;
         else if (bmi < 24.9) counts.normal++;
@@ -55,16 +67,25 @@ export default {
       for (const key in bmiCategories.value) {
         bmiCategories.value[key].count = counts[key];
         bmiCategories.value[key].percent = totalPersons.value ? (counts[key] / totalPersons.value) * 100 : 0;
+        console.log(`${key} category:`, bmiCategories.value[key]);
       }
     }
 
     function renderChart() {
-      if (!chartCanvas.value) return;
-      const ctx = chartCanvas.value.getContext('2d');
-      if (bmiChart) {
-        bmiChart.destroy();
-        bmiChart = null;
+      if (!chartCanvas.value) {
+        console.error("Canvas element is null");
+        return;
       }
+      console.log("Canvas element:", chartCanvas.value);
+
+      const ctx = chartCanvas.value.getContext('2d');
+      console.log("Context:", ctx);
+
+      if (bmiChart) {
+        bmiChart.destroy();  // Destroy old chart
+        console.log("Destroyed old chart");
+      }
+
       bmiChart = new Chart(ctx, {
         type: 'pie',
         data: {
@@ -83,14 +104,8 @@ export default {
       });
     }
 
-    watch(() => props.persons, () => {
-      calculateStats();
-      renderChart();
-    }, { deep: true, immediate: true });
-
     onMounted(() => {
-      calculateStats();
-      renderChart();
+      fetchPersons();
     });
 
     return { totalPersons, bmiCategories, chartCanvas };
